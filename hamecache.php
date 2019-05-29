@@ -26,6 +26,8 @@ function hamecache_init() {
 	// Init options.
 	\Hametuha\Hamecache\Option::get_instance()->version = $info['version'];
 	\Hametuha\Hamecache\Option::get_instance()->dir = __DIR__;
+	// Init purge controller.
+	\Hametuha\Hamecache\Purger::get_instance();
 	// Register CLI if possible.
 	if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		WP_CLI::add_command( 'hamecache', \Hametuha\Hamecache\Command::class );

@@ -16,6 +16,7 @@ use Hametuha\Hamecache\Pattern\Singleton;
  * @property-read  string $zone_id
  * @property-read  string $url
  * @property-read  string $extra_pages
+ * @property-read  array  $post_types
  * @property-read  bool   $do_not_log
  * @property-read  bool   $purge_top_page
  * @property-write string $dir
@@ -250,6 +251,17 @@ class Option extends Singleton {
 		} catch ( \Exception $e ) {
 			printf( '<p class="description">%s</p>', wp_kses_post( $e->getMessage() ) );
 		}
+	}
+
+	/**
+	 * Detect if post is supported to purge cache.
+	 *
+	 * @param null|int|\WP_Post $post
+	 * @return bool
+	 */
+	public function is_supported( $post = null ) {
+		$post = get_post( $post );
+		return $post && in_array( $post->post_type, $this->post_types );
 	}
 
 	/**

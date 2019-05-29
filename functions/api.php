@@ -43,7 +43,7 @@ function hamecache_make_request( $endpoint, $params, $method = 'GET', $args = []
 			'Content-Type' => 'application/json',
 		],
 	];
-	array_walk($params, function( &$value, $key ) {
+	array_walk_recursive($params, function( &$value, $key ) {
 		$a = rawurlencode( $value );
 	} );
 	switch ( $method ) {
