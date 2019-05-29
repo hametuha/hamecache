@@ -1,0 +1,22 @@
+{
+    "name": "hametuha/hamecache",
+    "description": "A page cache plugin for WordPress. Made by Hametuha.",
+    "type": "wordpress-plugin",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "fumikito",
+            "email": "guy@hametuha.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+      "psr-0": {
+        "Hametuha\\Hamecache": "app"
+      }
+    },
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^5"
+    }
+}
