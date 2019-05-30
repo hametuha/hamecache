@@ -30,7 +30,7 @@ This plugin **hamecache** provides cache control feature. If you updated your ar
 
 ### How can I contribute?
 
-We host our sources on GitHub, so please feel free to send [PR](https://github.com/hametuha/hamecache/pulls) or to make [issues](https://github.com/hametuha/hamecache/issues).
+We host our sources on [GitHub](https://github.com/hametuha/hamecache), so please feel free to send [PR](https://github.com/hametuha/hamecache/pulls) or to make [issues](https://github.com/hametuha/hamecache/issues).
 
 ### I have custom pages. How can I purge these URLs?
 

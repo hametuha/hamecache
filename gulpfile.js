@@ -93,7 +93,7 @@ gulp.task( 'watch', function() {
 });
 
 // Build
-gulp.task( 'build', gulp.parallel( 'js', 'eslint' ) );
+gulp.task( 'build', gulp.parallel( 'js', 'eslint', 'sass' ) );
 
 // Default Tasks
 gulp.task( 'default', gulp.series( 'watch' ) );
