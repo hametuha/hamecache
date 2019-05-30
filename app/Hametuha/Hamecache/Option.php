@@ -37,6 +37,8 @@ class Option extends Singleton {
 	 * Constructor
 	 */
 	protected function init() {
+		// Register assets.
+		add_action( 'init', [ $this, 'register_assets' ] );
 		// Register setting page.
 		add_action( 'admin_menu', [ $this, 'add_menu' ] );
 		// Register items.
@@ -46,10 +48,17 @@ class Option extends Singleton {
 	}
 
 	/**
+	 * Register assets.
+	 */
+	public function register_assets() {
+		wp_register_style( 'hamecache-admin', $this->url . 'assets/css/admin.css', [], $this->version );
+	}
+
+	/**
 	 * Enqueue style and JS
 	 */
 	public function admin_enqueue_scripts() {
-		wp_enqueue_style( 'hamecache-admin', $this->url . 'assets/css/admin.css', [], $this->version );
+		wp_enqueue_style( 'hamecache-admin' );
 	}
 
 	/**
@@ -261,7 +270,7 @@ class Option extends Singleton {
 	 */
 	public function is_supported( $post = null ) {
 		$post = get_post( $post );
-		return $post && in_array( $post->post_type, $this->post_types );
+		return $post && ! empty( $post->post_type ) && in_array( $post->post_type, $this->post_types );
 	}
 
 	/**

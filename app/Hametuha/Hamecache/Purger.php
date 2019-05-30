@@ -21,11 +21,12 @@ class Purger extends Singleton {
 		add_action( 'save_post', [ $this, 'save_post' ], 100, 2 );
 		add_action( 'transition_post_status', [ $this, 'purge_scheduled' ], 100, 3 );
 		// Add REST API.
-
+		add_action( 'rest_api_init', [ $this, 'register_rest' ] );
 		// Add button for admin_bar.
 		add_action( 'admin_bar_menu', [ $this, 'admin_bar' ], 998 );
 		// Register assets.
 		add_action( 'init', [ $this, 'register_assets' ] );
+		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 	}
 
 	/**
@@ -33,6 +34,16 @@ class Purger extends Singleton {
 	 */
 	public function register_assets() {
 		wp_register_script( 'hamecache-controller', $this->option->url . 'assets/js/purge.js', [ 'jquery-effects-highlight', 'wp-api-fetch', 'wp-i18n' ], $this->option->version, true );
+	}
+
+	/**
+	 * Enqueue assets if admin bar exits.
+	 */
+	public function enqueue_scripts() {
+		if ( is_admin_bar_showing() && current_user_can( 'edit_posts' ) ) {
+			wp_enqueue_script( 'hamecache-controller' );
+			wp_enqueue_style( 'hamecache-admin' );
+		}
 	}
 
 	/**
@@ -75,9 +86,6 @@ class Purger extends Singleton {
 				throw new \Exception( __( 'No URL to be purged.', 'hamecache' ) );
 			}
 			$urls = array_values( $urls );
-			$urls = array_map( function( $url ) {
-				return str_replace( '.info', '.com', $url );
-			}, $urls );
 			$result = hamecache_purge( $urls );
 			if ( is_wp_error( $result ) ) {
 				throw new \Exception( $result->get_error_message() );
@@ -119,12 +127,12 @@ class Purger extends Singleton {
 		// Permalink
 		$urls['permalink'] = get_permalink( $post );
 		// Pages.
-		$has_permlink = get_option( 'rewrite_rules' );
+		$has_permalink = get_option( 'rewrite_rules' );
 		if ( preg_match_all( '/<\!--nextpage-->/u', $post->post_content, $matches, PREG_SET_ORDER ) ) {
 			foreach ( $matches as $index => $match ) {
 				if ( $index ) {
 					$pagenum = $index + 1;
-					if ( $has_permlink ) {
+					if ( $has_permalink ) {
 						$urls[ 'paging-' . $pagenum ] = sprintf( '%s/page/%d/', untrailingslashit( get_permalink( $post ) ), $pagenum );
 					} else {
 						$urls[ 'paging-' . $pagenum ] = add_query_arg( [
@@ -135,7 +143,7 @@ class Purger extends Singleton {
 			}
 		}
 		// AMP URL.
-		if ( function_exists( 'amp_activate' ) ) {
+		if ( function_exists( 'amp_get_permalink' ) ) {
 			$urls['amp'] = amp_get_permalink( $post->ID );
 		}
 		// Author url.
@@ -232,6 +240,87 @@ class Purger extends Singleton {
 		}
 		// Enqueue scripts.
 		wp_enqueue_script( 'hamecache-controller' );
+	}
+
+	/**
+	 * Register rest endpoint.
+	 */
+	public function register_rest() {
+		// Purge everything.
+		register_rest_route( 'hamecache/v1', 'cache/everything', [
+			[
+				'methods'     => 'DELETE',
+				'description' => __( 'Purge everything from cloudfalre.', 'hamecache' ),
+				'args'        => [],
+				'callback'    => [ $this, 'rest_purge_everything' ],
+				'permission_callback' => function() {
+					return current_user_can( 'edit_others_posts' );
+				}
+			]
+		] );
+		// Purge post cache.
+		register_rest_route( 'hamecache/v1', 'cache/post/(?P<post_id>\d+)', [
+			[
+				'methods'     => 'DELETE',
+				'description' => __( 'Purge cache of specified post.', 'hamecache' ),
+				'args'        => [
+					'post_id' => [
+						'required'          => true,
+						'type'              => 'integer',
+						'description'       => __( '', 'hamecache' ),
+						'validate_callback' => function( $var ) {
+							return $this->option->is_supported( $var );
+						},
+					],
+				],
+				'callback'    => [ $this, 'rest_purge_post' ],
+				'permission_callback' => function( \WP_REST_Request $request ) {
+					return current_user_can( 'edit_post', $request->get_param( 'post_id' ) );
+				}
+			]
+		] );
+	}
+
+	/**
+	 * Handle purge everything.
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function rest_purge_everything( $request ) {
+		$result = hamecache_purge_everything();
+		$code = 200;
+		if ( is_wp_error( $result ) ) {
+			$code = 500;
+			$message = $result->get_error_message();
+		} else {
+			$message = __( 'Every cache is purged.', 'hamecache' );
+			$log     =  json_encode( $result );
+			$result = new \WP_REST_Response( [
+				'success' => true,
+				'message' => $message
+			] );
+			$message .= "\n" . $log;
+		}
+		if ( ! $this->option->do_not_log ) {
+			error_log( "HAMECACHE\t{$code}\tEverything\t{$message}" );
+		}
+		return $result;
+	}
+
+	/**
+	 * Purge post cache.
+	 *
+	 * @param \WP_REST_Request $request
+	 * @return \WP_Error|\WP_REST_Response
+	 */
+	public function rest_purge_post( $request ) {
+		$post = get_post( $request->get_param( 'post_id' ) );
+		$result = $this->purge( $post );
+		return is_wp_error( $result ) ? $result : new \WP_REST_Response( [
+			'success' => true,
+			'message' => sprintf( __( 'All caches are flushed: %s', 'hamecache' ), get_the_title( $post ) ),
+		] );
 	}
 
 	/**
