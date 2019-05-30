@@ -17,8 +17,22 @@ class Purger extends Singleton {
 	 * Constructor.
 	 */
 	protected function init() {
+		// If post is edited, purge cache.
 		add_action( 'save_post', [ $this, 'save_post' ], 100, 2 );
 		add_action( 'transition_post_status', [ $this, 'purge_scheduled' ], 100, 3 );
+		// Add REST API.
+
+		// Add button for admin_bar.
+		add_action( 'admin_bar_menu', [ $this, 'admin_bar' ], 998 );
+		// Register assets.
+		add_action( 'init', [ $this, 'register_assets' ] );
+	}
+
+	/**
+	 * Register scripts.
+	 */
+	public function register_assets() {
+		wp_register_script( 'hamecache-controller', $this->option->url . 'assets/js/purge.js', [ 'jquery-effects-highlight', 'wp-api-fetch', 'wp-i18n' ], $this->option->version, true );
 	}
 
 	/**
@@ -152,7 +166,72 @@ class Purger extends Singleton {
 			$urls['top'] = home_url( '/' );
 			$urls['feed'] = get_feed_link();
 		}
-		return $urls;
+		/**
+		 * hamecache_urls_to_be_purged
+		 *
+		 * List of URLs to be purged.
+		 *
+		 * @param array    $urls List of URL.
+		 * @param \WP_Post $post Post to be edited.
+		 * @return array
+		 */
+		return apply_filters( 'hamecache_urls_to_be_purged', $urls, $post );
+	}
+
+	/**
+	 * Add admin bar menu.
+	 *
+	 * @param \WP_Admin_Bar $wp_adminbar
+	 */
+	public function admin_bar( &$wp_adminbar ) {
+		$values = hamecache_service_available( true );
+		if ( is_wp_error( $values ) ) {
+			return;
+		}
+		// Add root.
+		$wp_adminbar->add_menu( [
+			'id'     => 'hamecache-ab-label',
+			'href'   => false,
+			'title'  => '<span class="ab-icon dashicons-cloud"></span>' . __( 'Cache', 'hamecache' ),
+		] );
+		// Add purge everything.
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			$wp_adminbar->add_node( [
+				'id' => 'hamecache-ab-everything',
+				'href' => '#all',
+				'title' => __( 'Purge Everything', 'hamecache' ),
+				'parent' => 'hamecache-ab-label',
+				'meta' => [
+					'class' => 'hamecache-ab-btn'
+				],
+			] );
+		}
+		// If this is post screen or single post page,
+		// Remove it.
+		$single_post = null;
+		if ( is_admin() ) {
+			$screen = get_current_screen();
+			if ( 'post' === $screen->base && in_array( $screen->post_type, $this->option->post_types ) ) {
+				$single_post = (int) filter_input( INPUT_GET, 'post' );
+			}
+		} else {
+			if ( is_singular() && $this->option->is_supported( get_queried_object() ) ) {
+				$single_post = (int) get_queried_object_id();
+			}
+		}
+		if ( $single_post && current_user_can( 'edit_post', $single_post ) ) {
+			$wp_adminbar->add_node( [
+				'id'     => 'hamecache-ab-single',
+				'href'   => sprintf( '#post-%d', $single_post ),
+				'title'  => __( 'Purge this post', 'hamecache' ),
+				'parent' => 'hamecache-ab-label',
+				'meta' => [
+					'class' => 'hamecache-ab-btn'
+				],
+			] );
+		}
+		// Enqueue scripts.
+		wp_enqueue_script( 'hamecache-controller' );
 	}
 
 	/**

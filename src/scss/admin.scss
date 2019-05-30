@@ -3,6 +3,32 @@
 	margin: 3em 0;
 }
 
+#wpadminbar .dashicons{
+	font-family: Dashicons;
+}
+
+.hamecache-message{
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 99999;
+	background-color: #F3801F;
+	color: #fff;
+	p{
+		padding: 1em;
+		margin: 0 auto;
+		max-width: 768px;
+		text-align: center;
+	}
+	&-success {
+		background-color: #79C698;
+	}
+	&-error{
+		background-color: #ff0000;
+	}
+}
+
 .hamecache-error{
 	margin: 1em 0;
 	padding: 1em;
