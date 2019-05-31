@@ -30,7 +30,7 @@ matrix:
       env: WP_VERSION=latest
 env:
   global:
-    - SVN_REPO: https://plugins.svn.wordpress.org/hamecahe/
+    - SVN_REPO: https://plugins.svn.wordpress.org/hamecache/
     - secure: "bd2EjanHDjWd6c8xabIEivVvupaKrvXJGg2S/AjhgFYeMWnnQ9lsgab9u4RJyjXY8p/T7MsxfaAy8hEnzZG3JL2fIsOVNOLIQ3xIvd3XYhK9qFKlC97Xy31ZMMFz7a6MPR6djFgt5FfsKaBqf2IUotFd9Tk1OSNH2gmP6r7jPMOjZ6YEeFfXF9GhJcAtK4VvFwWNeU9HaPKyaBKR+jrhYcsqJa04rHQbVzE4FywX+OiS5MLr3s2KeLigtkUw68q8SHj4EnZqF3DFB8QCP4wW8fanEKlu7Jw5rcsfpSNdymG8gX+LRPLMuWqZiMt550dhQEGLNh5Zqreq4DUQAVh79TqyKnSZzsI1WUYhs+mq6EvrkZ2taToxD6Uj1FC/7dIXR/qIpgMpqUHJgrwAQm04sEkJi0grVuJvYjV+h+VwdHJ5ZPLU/gMNrqJU/e5TIHdFThGDhpcCTl7951BE/q5HckrQPyA9hnSnTGk9XgdjX7D5IvJrE0MX2JEiOFRgYl6C9aQjo5hndyRF/tV+9JAJu5+PiqLUyfoeI9B6Rq0hiVUxVj6bptH8TsB/Y8bcp4FiDRfjDSudPMpLKP/5y9GLAumnmeH5jqTsvhoHjHmCNevivnwUvbhWEmmv+vR1f2Gh3F92kGQ+vk3hDE1ZLdY9nmeLOd3Ogy4p0omdo2eTapo="
 
 
