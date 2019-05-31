@@ -1,13 +1,13 @@
 <?php
 /**
  * Plugin Name:     Hamecache
- * Plugin URI:
+ * Plugin URI:      https://wordpress.org/plugins/hamecache/
  * Description:     A page cache plugin for WordPress by Hametuha. Cache stored on cloud front.
  * Author:          Hametuha
  * Author URI:      https://hametuha.co.jp
  * Text Domain:     hamecache
  * Domain Path:     /languages
- * Version:         0.1.0
+ * Version:         1.0.0
  *
  * @package         hamecache
  */
