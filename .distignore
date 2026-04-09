@@ -24,6 +24,10 @@ multisite.xml.dist
 phpcs.xml
 .phpcs.xml.dist
 phpcs.xml.dist
+phpcs.ruleset.xml
+phpstan.neon
+phpstan-baseline.neon
+phpstan-bootstrap.php
 README.md
 wp-cli.local.yml
 yarn.lock
