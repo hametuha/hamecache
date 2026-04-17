@@ -8,6 +8,7 @@
  * Text Domain:     hamecache
  * Domain Path:     /languages
  * Version:         1.0.0
+ * Requires PHP:    7.4
  *
  * @package         hamecache
  */
