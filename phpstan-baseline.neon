@@ -1,0 +1,73 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to method addRow\(\) on an unknown class cli\\Table\.$#'
+			identifier: class.notFound
+			count: 2
+			path: app/Hametuha/Hamecache/Command.php
+
+		-
+			message: '#^Call to method display\(\) on an unknown class cli\\Table\.$#'
+			identifier: class.notFound
+			count: 2
+			path: app/Hametuha/Hamecache/Command.php
+
+		-
+			message: '#^Call to method setHeaders\(\) on an unknown class cli\\Table\.$#'
+			identifier: class.notFound
+			count: 2
+			path: app/Hametuha/Hamecache/Command.php
+
+		-
+			message: '#^Cannot access property \$result on array\|WP_Error\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Hametuha/Hamecache/Command.php
+
+		-
+			message: '#^Cannot access property \$result_info on array\|WP_Error\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Hametuha/Hamecache/Command.php
+
+		-
+			message: '#^Instantiated class cli\\Table not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: app/Hametuha/Hamecache/Command.php
+
+		-
+			message: '#^Cannot access property \$result on array\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Hametuha/Hamecache/Option.php
+
+		-
+			message: '#^Cannot access property \$result_info on array\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: app/Hametuha/Hamecache/Option.php
+
+		-
+			message: '#^Found usage of constant DOING_AJAX\. Use wp_doing_ajax\(\) instead\.$#'
+			identifier: phpstanWP.wpConstant.fetch
+			count: 1
+			path: app/Hametuha/Hamecache/Option.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 3
+			path: app/Hametuha/Hamecache/Option.php
+
+		-
+			message: '#^Parameter \#1 \$author_id of function get_author_feed_link expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Hametuha/Hamecache/Purger.php
+
+		-
+			message: '#^Parameter \#1 \$author_id of function get_author_posts_url expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: app/Hametuha/Hamecache/Purger.php
