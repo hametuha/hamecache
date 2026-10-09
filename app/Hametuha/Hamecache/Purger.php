@@ -226,7 +226,7 @@ class Purger extends Singleton {
 		$single_post = null;
 		if ( is_admin() ) {
 			$screen = get_current_screen();
-			if ( 'post' === $screen->base && in_array( $screen->post_type, $this->option->post_types ) ) {
+			if ( 'post' === $screen->base && in_array( $screen->post_type, $this->option->post_types, true ) ) {
 				$single_post = (int) filter_input( INPUT_GET, 'post' );
 			}
 		} else {
@@ -283,9 +283,9 @@ class Purger extends Singleton {
 						'post_id' => [
 							'required'          => true,
 							'type'              => 'integer',
-							'description'       => __( '', 'hamecache' ),
-							'validate_callback' => function ( $var ) {
-								return $this->option->is_supported( $var );
+							'description'       => __( 'Post ID to purge cache.', 'hamecache' ),
+							'validate_callback' => function ( $post_id ) {
+								return $this->option->is_supported( $post_id );
 							},
 						],
 					],
@@ -339,6 +339,7 @@ class Purger extends Singleton {
 		return is_wp_error( $result ) ? $result : new \WP_REST_Response(
 			[
 				'success' => true,
+				// translators: %s is post title.
 				'message' => sprintf( __( 'All caches are flushed: %s', 'hamecache' ), get_the_title( $post ) ),
 			]
 		);

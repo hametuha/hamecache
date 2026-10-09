@@ -90,6 +90,7 @@ class Option extends Singleton {
 				<hr class="hamecache-divider" />
 
 				<h2><?php esc_html_e( 'Page Rules', 'hamecache' ); ?></h2>
+				<?php // translators: %s is URL of cloudflare dashboard. ?>
 				<p class="description"><?php echo wp_kses_post( sprintf( __( 'Here are your page rules. You can manage them at <a href="%s" target="_blank">cloudflare dashboard</a>.', 'hamecache' ), 'https://dash.cloudflare.com' ) ); ?></p>
 
 				<?php
@@ -153,7 +154,9 @@ class Option extends Singleton {
 		);
 		foreach ( [
 			[ 'mail', __( 'Email', 'hamecache' ), __( 'Your email address registered at cloudflare.', 'hamecache' ) ],
+			// translators: %s is URL of cloudflare profile page.
 			[ 'token', __( 'Token', 'hamecache' ), sprintf( __( 'API token which you can get on <a href="%s" target="_blank">profile page</a>.', 'hamecache' ), 'https://dash.cloudflare.com/' ) ],
+			// translators: %s is domain name.
 			[ 'zone_id', __( 'Zone ID', 'hamecache' ), sprintf( __( 'Zone ID is assigned to your domain <code>%s</code>.', 'hamecache' ), $this->domain ) ],
 		] as list( $key, $label, $desc ) ) {
 			add_settings_field(
@@ -164,8 +167,9 @@ class Option extends Singleton {
 					$const_name   = strtoupper( 'CF_' . $key );
 					$place_holder = '';
 					if ( defined( $const_name ) ) {
-						$const        = get_defined_constants()[ $const_name ];
-						$desc        .= '<br />' . sprintf(
+						$const = get_defined_constants()[ $const_name ];
+						$desc .= '<br />' . sprintf(
+							// translators: %1$s is the value of the constant, %2$s is the constant name.
 							__( '<code>%1$s</code> is defined as <code>%2$s</code>. This value takes priority.', 'hamecache' ),
 							$const,
 							$const_name
@@ -222,7 +226,7 @@ class Option extends Singleton {
 			<p>
 				<?php foreach ( $post_types as $post_type ) : ?>
 				<label class="hamecache-label">
-					<input type="checkbox" name="hamecache_post_types[]" value="<?php echo esc_attr( $post_type->name ); ?>" <?php checked( in_array( $post_type->name, $this->post_types ) ); ?> />
+					<input type="checkbox" name="hamecache_post_types[]" value="<?php echo esc_attr( $post_type->name ); ?>" <?php checked( in_array( $post_type->name, $this->post_types, true ) ); ?> />
 					<?php echo esc_html( $post_type->label ); ?>
 				</label>
 				<?php endforeach; ?>
@@ -318,7 +322,7 @@ class Option extends Singleton {
 	 */
 	public function is_supported( $post = null ) {
 		$post = get_post( $post );
-		return $post && ! empty( $post->post_type ) && in_array( $post->post_type, $this->post_types );
+		return $post && ! empty( $post->post_type ) && in_array( $post->post_type, $this->post_types, true );
 	}
 
 	/**

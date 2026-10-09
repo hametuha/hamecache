@@ -54,8 +54,10 @@ class Command extends \WP_CLI_Command {
 		$count = count( $purge );
 		\WP_CLI::success(
 			sprintf(
+				// translators: %1$s is post title, %2$s is number of URLs.
 				__( '%1$s has %2$s to be purged.', 'hamecache' ),
 				get_the_title( $post ),
+				// translators: %d is number of URLs.
 				sprintf( _n( '%d URL', '%d URLS', $count, 'hamecache' ), $count )
 			)
 		);
@@ -71,6 +73,7 @@ class Command extends \WP_CLI_Command {
 			\WP_CLI::error( $result->get_error_message() );
 		}
 		if ( ! $result->result_info->count ) {
+			// translators: %s is domain name.
 			\WP_CLI::error( sprintf( __( 'No zone found for domain %s.', 'hamecache' ), $this->option->domain ) );
 		}
 		$table = new Table();

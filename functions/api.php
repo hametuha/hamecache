@@ -27,7 +27,8 @@ function hamecache_service_available( $wp_error = false, $allow_empty_zone_id = 
  * @return array|object|WP_Error
  */
 function hamecache_make_request( $endpoint, $params, $method = 'GET', $args = [] ) {
-	if ( is_wp_error( $valid = hamecache_service_available( true, true ) ) ) {
+	$valid = hamecache_service_available( true, true );
+	if ( is_wp_error( $valid ) ) {
 		return $valid;
 	}
 	$option   = \Hametuha\Hamecache\Option::get_instance();
