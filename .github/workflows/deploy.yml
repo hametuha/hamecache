@@ -33,7 +33,8 @@ jobs:
       - name: Install dependencies and build Assets
         run: |
           composer install --no-dev --prefer-dist
-          npm install
+          npm ci --ignore-scripts
+          npm rebuild node-sass
           npm start
 
       - name: Generate readme.txt
