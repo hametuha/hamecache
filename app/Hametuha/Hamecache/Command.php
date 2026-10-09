@@ -18,7 +18,6 @@ class Command extends \WP_CLI_Command {
 	 *
 	 */
 	public function list_rules() {
-
 	}
 
 	/**
@@ -36,7 +35,7 @@ class Command extends \WP_CLI_Command {
 	 */
 	public function urls( $args ) {
 		list( $post_id ) = $args;
-		$post = get_post( $post_id );
+		$post            = get_post( $post_id );
 		if ( ! $this->option->is_supported( $post ) ) {
 			\WP_CLI::error( __( 'This post is not supported.', 'hamecache' ) );
 		}
@@ -44,20 +43,22 @@ class Command extends \WP_CLI_Command {
 		if ( ! $purge ) {
 			\WP_CLI::error( __( 'This post has no url to be purged.', 'hamecache' ) );
 		}
-		$table = new Table( );
+		$table = new Table();
 		$table->setHeaders( [ '#', 'Type', 'URL' ] );
 		$counter = 0;
 		foreach ( $purge as $type => $url ) {
-			$counter++;
+			++$counter;
 			$table->addRow( [ $counter, rawurldecode( $type ), rawurldecode( $url ) ] );
 		}
 		$table->display();
 		$count = count( $purge );
-		\WP_CLI::success( sprintf(
-			__( '%s has %s to be purged.', 'hamecache' ),
-			get_the_title( $post ),
-			sprintf( _n( '%d URL', '%d URLS', $count, 'hamecache' ), $count )
-		) );
+		\WP_CLI::success(
+			sprintf(
+				__( '%1$s has %2$s to be purged.', 'hamecache' ),
+				get_the_title( $post ),
+				sprintf( _n( '%d URL', '%d URLS', $count, 'hamecache' ), $count )
+			)
+		);
 	}
 
 	/**
