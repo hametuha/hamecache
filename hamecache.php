@@ -20,13 +20,16 @@ defined( 'ABSPATH' ) || die();
  */
 function hamecache_init() {
 	load_plugin_textdomain( 'hamecache', false, basename( __DIR__ ) );
-	require_once  __DIR__ . '/vendor/autoload.php';
-	$info = get_file_data( __FILE__, [
-		'version' => 'Version',
-	] );
+	require_once __DIR__ . '/vendor/autoload.php';
+	$info = get_file_data(
+		__FILE__,
+		[
+			'version' => 'Version',
+		]
+	);
 	// Init options.
 	\Hametuha\Hamecache\Option::get_instance()->version = $info['version'];
-	\Hametuha\Hamecache\Option::get_instance()->dir = __DIR__;
+	\Hametuha\Hamecache\Option::get_instance()->dir     = __DIR__;
 	// Init purge controller.
 	\Hametuha\Hamecache\Purger::get_instance();
 	// Register CLI if possible.

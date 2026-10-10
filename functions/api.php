@@ -8,12 +8,12 @@
  * @return bool|WP_Error
  */
 function hamecache_service_available( $wp_error = false, $allow_empty_zone_id = false ) {
-	$option = \Hametuha\Hamecache\Option::get_instance();
+	$option    = \Hametuha\Hamecache\Option::get_instance();
 	$available = $option->mail && $option->token;
 	if ( ! $allow_empty_zone_id ) {
 		$available = $available && $option->zone_id;
 	}
-	return $wp_error && ! $available ?  new WP_Error( 'hamecache_invalid_credentials', __( 'No credentials set.', 'hamecache' ) ) : $available;
+	return $wp_error && ! $available ? new WP_Error( 'hamecache_invalid_credentials', __( 'No credentials set.', 'hamecache' ) ) : $available;
 }
 
 /**
@@ -27,7 +27,8 @@ function hamecache_service_available( $wp_error = false, $allow_empty_zone_id = 
  * @return array|object|WP_Error
  */
 function hamecache_make_request( $endpoint, $params, $method = 'GET', $args = [] ) {
-	if ( is_wp_error( $valid = hamecache_service_available( true, true ) ) ) {
+	$valid = hamecache_service_available( true, true );
+	if ( is_wp_error( $valid ) ) {
 		return $valid;
 	}
 	$option   = \Hametuha\Hamecache\Option::get_instance();
@@ -43,9 +44,12 @@ function hamecache_make_request( $endpoint, $params, $method = 'GET', $args = []
 			'Content-Type' => 'application/json',
 		],
 	];
-	array_walk_recursive($params, function( &$value, $key ) {
-		$a = rawurlencode( $value );
-	} );
+	array_walk_recursive(
+		$params,
+		function ( &$value, $key ) {
+			$a = rawurlencode( $value );
+		}
+	);
 	switch ( $method ) {
 		case 'GET':
 			$endpoint = add_query_arg( $params, $endpoint );
@@ -78,9 +82,13 @@ function hamecache_purge( $urls ) {
 		return $valid;
 	}
 	$option = \Hametuha\Hamecache\Option::get_instance();
-	return hamecache_make_request( sprintf( '/zones/%s/purge_cache', $option->zone_id ), [
-		'files' => $urls,
-	], 'DELETE' );
+	return hamecache_make_request(
+		sprintf( '/zones/%s/purge_cache', $option->zone_id ),
+		[
+			'files' => $urls,
+		],
+		'DELETE'
+	);
 }
 
 /**
@@ -94,9 +102,13 @@ function hamecache_purge_everything() {
 		return $valid;
 	}
 	$option = \Hametuha\Hamecache\Option::get_instance();
-	return hamecache_make_request( sprintf( '/zones/%s/purge_cache', $option->zone_id ), [
-		'purge_everything' => true,
-	], 'DELETE' );
+	return hamecache_make_request(
+		sprintf( '/zones/%s/purge_cache', $option->zone_id ),
+		[
+			'purge_everything' => true,
+		],
+		'DELETE'
+	);
 }
 
 /**
@@ -124,13 +136,17 @@ function hamecache_list_zones( $page = 1, $per_page = 20 ) {
 	if ( is_wp_error( $valid ) ) {
 		return $valid;
 	}
-	return hamecache_make_request( 'zones', [
-		'name' => \Hametuha\Hamecache\Option::get_instance()->domain,
-		'status' => 'active',
-		'page'     => max( 1, $page ),
-		'per_page' => $per_page,
-		'order'    => 'status',
-		'direction' => 'desc',
-		'match'     => 'all',
-	], 'GET' );
+	return hamecache_make_request(
+		'zones',
+		[
+			'name'      => \Hametuha\Hamecache\Option::get_instance()->domain,
+			'status'    => 'active',
+			'page'      => max( 1, $page ),
+			'per_page'  => $per_page,
+			'order'     => 'status',
+			'direction' => 'desc',
+			'match'     => 'all',
+		],
+		'GET'
+	);
 }

@@ -66,11 +66,16 @@ class Option extends Singleton {
 	 */
 	public function add_menu() {
 		$menu_title = __( 'Cache Setting', 'hamecache' );
-		$title = $menu_title . ' - Hamecache';
-		add_options_page( $title, $menu_title, 'manage_options', 'hamecache', function() use ( $title ) {
-			?>
+		$title      = $menu_title . ' - Hamecache';
+		add_options_page(
+			$title,
+			$menu_title,
+			'manage_options',
+			'hamecache',
+			function () use ( $title ) {
+				?>
 			<div class="wrap">
-				<h1><?php echo esc_html( $title ) ?></h1>
+				<h1><?php echo esc_html( $title ); ?></h1>
 
 				<hr class="hamecache-divider" />
 
@@ -84,24 +89,25 @@ class Option extends Singleton {
 
 				<hr class="hamecache-divider" />
 
-				<h2><?php esc_html_e( 'Page Rules', 'hamecache' ) ?></h2>
-				<p class="description"><?php echo wp_kses_post( sprintf( __( 'Here are your page rules. You can manage them at <a href="%s" target="_blank">cloudflare dashboard</a>.', 'hamecache' ), 'https://dash.cloudflare.com' ) ) ?></p>
+				<h2><?php esc_html_e( 'Page Rules', 'hamecache' ); ?></h2>
+				<?php // translators: %s is URL of cloudflare dashboard. ?>
+				<p class="description"><?php echo wp_kses_post( sprintf( __( 'Here are your page rules. You can manage them at <a href="%s" target="_blank">cloudflare dashboard</a>.', 'hamecache' ), 'https://dash.cloudflare.com' ) ); ?></p>
 
 				<?php
 				$rules = hamecache_get_page_rules();
 				if ( is_wp_error( $rules ) ) :
 					?>
 				<div class="hamecache-error">
-					<p><?php echo esc_html( $rules->get_error_message() ) ?></p>
+					<p><?php echo esc_html( $rules->get_error_message() ); ?></p>
 				</div>
-				<?php else: ?>
+				<?php else : ?>
 				<ol class="hamecache-rule-list">
 					<?php foreach ( $rules->result as $rule ) : ?>
 					<li class="hamecache-rule-item">
 
 						<div class="hamecache-rule-url">
 
-							<input onclick="this.select();" readonly type="text" class="widefat" value="<?php echo esc_attr( $rule->targets[0]->constraint->value ) ?>" />
+							<input onclick="this.select();" readonly type="text" class="widefat" value="<?php echo esc_attr( $rule->targets[0]->constraint->value ); ?>" />
 
 							<span class="hamecache-rule-status">
 								<?php if ( 'active' === $rule->status ) : ?>
@@ -115,8 +121,8 @@ class Option extends Singleton {
 						<div class="hamecache-rule-actions">
 							<?php foreach ( $rule->actions as $action ) : ?>
 							<span class="hamecache-rule-action">
-								<span><?php echo esc_html( $action->id ) ?>: </span>
-								<code><?php echo esc_html( $action->value ) ?></code>
+								<span><?php echo esc_html( $action->id ); ?>: </span>
+								<code><?php echo esc_html( $action->value ); ?></code>
 							</span>
 							<?php endforeach; ?>
 						</div>
@@ -125,8 +131,9 @@ class Option extends Singleton {
 				</ol>
 				<?php endif; ?>
 			</div>
-			<?php
-		} );
+				<?php
+			}
+		);
 	}
 
 	/**
@@ -137,67 +144,98 @@ class Option extends Singleton {
 			return;
 		}
 		// Add setting section for credentials.
-		add_settings_section( 'hamecache_setting', __( 'Credentials', 'hamecache' ), function() {
-			printf( '<p class="description">%s</p>', esc_html__( 'Enter credentials to enable page cache.', 'hamecache' ) );
-		}, 'hamecache' );
+		add_settings_section(
+			'hamecache_setting',
+			__( 'Credentials', 'hamecache' ),
+			function () {
+				printf( '<p class="description">%s</p>', esc_html__( 'Enter credentials to enable page cache.', 'hamecache' ) );
+			},
+			'hamecache'
+		);
 		foreach ( [
 			[ 'mail', __( 'Email', 'hamecache' ), __( 'Your email address registered at cloudflare.', 'hamecache' ) ],
+			// translators: %s is URL of cloudflare profile page.
 			[ 'token', __( 'Token', 'hamecache' ), sprintf( __( 'API token which you can get on <a href="%s" target="_blank">profile page</a>.', 'hamecache' ), 'https://dash.cloudflare.com/' ) ],
+			// translators: %s is domain name.
 			[ 'zone_id', __( 'Zone ID', 'hamecache' ), sprintf( __( 'Zone ID is assigned to your domain <code>%s</code>.', 'hamecache' ), $this->domain ) ],
 		] as list( $key, $label, $desc ) ) {
-			add_settings_field( 'hamecache_' . $key, $label, function() use ( $key, $desc ) {
-				$name         = 'hamecache_' . $key;
-				$const_name   = strtoupper( 'CF_' . $key );
-				$place_holder = '';
-				if ( defined( $const_name ) ) {
-					$const = get_defined_constants()[ $const_name ];
-					$desc .= '<br />' . sprintf(
-						__( '<code>%1$s</code> is defined as <code>%2$s</code>. This value takes priority.', 'hamecache' ),
-						$const,
-						$const_name
+			add_settings_field(
+				'hamecache_' . $key,
+				$label,
+				function () use ( $key, $desc ) {
+					$name         = 'hamecache_' . $key;
+					$const_name   = strtoupper( 'CF_' . $key );
+					$place_holder = '';
+					if ( defined( $const_name ) ) {
+						$const = get_defined_constants()[ $const_name ];
+						$desc .= '<br />' . sprintf(
+							// translators: %1$s is the value of the constant, %2$s is the constant name.
+							__( '<code>%1$s</code> is defined as <code>%2$s</code>. This value takes priority.', 'hamecache' ),
+							$const,
+							$const_name
+						);
+						$place_holder = $const;
+					}
+					printf(
+						'<input type="text" id="%1$s" name="%1$s" class="widefat" value="%2$s" placeholder="%3$s" />',
+						esc_attr( $name ),
+						esc_attr( get_option( $name ) ),
+						esc_attr( $place_holder )
 					);
-					$place_holder = $const;
-				}
-				printf(
-					'<input type="text" id="%1$s" name="%1$s" class="widefat" value="%2$s" placeholder="%3$s" />',
-					esc_attr( $name ),
-					esc_attr( get_option( $name ) ),
-					esc_attr( $place_holder )
-				);
-				?>
+					?>
 				<p class="description">
-					<?php echo wp_kses_post( $desc ) ?>
+					<?php echo wp_kses_post( $desc ); ?>
 				</p>
-				<?php
-				if ( 'zone_id' === $key ) {
-					$this->zone_id_list();
-				}
-			}, 'hamecache', 'hamecache_setting' );
+					<?php
+					if ( 'zone_id' === $key ) {
+						$this->zone_id_list();
+					}
+				},
+				'hamecache',
+				'hamecache_setting'
+			);
 			register_setting( 'hamecache', 'hamecache_' . $key );
 		}
 
 		// Add sections for post types.
-		add_settings_section( 'hamecache_rules', __( 'Pages to Cache', 'hamecache' ), function() {
-			printf( '<p class="description">%s</p>', esc_html__( 'These post types will purge automatically.', 'hamecache' ) );
-		}, 'hamecache' );
+		add_settings_section(
+			'hamecache_rules',
+			__( 'Pages to Cache', 'hamecache' ),
+			function () {
+				printf( '<p class="description">%s</p>', esc_html__( 'These post types will purge automatically.', 'hamecache' ) );
+			},
+			'hamecache'
+		);
 		// Post types.
-		add_settings_field( 'hamecache_post_types', __( 'Post Types', 'hamecache' ), function() {
-			$post_types = array_filter( get_post_types( [
-				'public' => true,
-			], 'objects' ), function( $post_type ) {
-				return 'attachment' !== $post_type->name;
-			} );
-			?>
+		add_settings_field(
+			'hamecache_post_types',
+			__( 'Post Types', 'hamecache' ),
+			function () {
+				$post_types = array_filter(
+					get_post_types(
+						[
+							'public' => true,
+						],
+						'objects'
+					),
+					function ( $post_type ) {
+						return 'attachment' !== $post_type->name;
+					}
+				);
+				?>
 			<p>
 				<?php foreach ( $post_types as $post_type ) : ?>
 				<label class="hamecache-label">
-					<input type="checkbox" name="hamecache_post_types[]" value="<?php echo esc_attr( $post_type->name ) ?>" <?php checked( in_array( $post_type->name, $this->post_types ) ) ?> />
-					<?php echo esc_html( $post_type->label ) ?>
+					<input type="checkbox" name="hamecache_post_types[]" value="<?php echo esc_attr( $post_type->name ); ?>" <?php checked( in_array( $post_type->name, $this->post_types, true ) ); ?> />
+					<?php echo esc_html( $post_type->label ); ?>
 				</label>
 				<?php endforeach; ?>
 			</p>
-			<?php
-		}, 'hamecache', 'hamecache_rules' );
+				<?php
+			},
+			'hamecache',
+			'hamecache_rules'
+		);
 		register_setting( 'hamecache', 'hamecache_post_types' );
 		// Top page and log.
 		foreach ( [
@@ -205,10 +243,14 @@ class Option extends Singleton {
 			'do_not_log'     => __( 'Do not log on purge', 'hamecache' ),
 		] as $key => $label ) {
 			$option_key = 'hamecache_' . $key;
-			add_settings_field( $option_key, $label, function() use ( $key, $option_key ) {
-				?>
+			add_settings_field(
+				$option_key,
+				$label,
+				function () use ( $key, $option_key ) {
+					?>
 				<p>
-					<?php foreach ( [ __( 'Yes', 'hamecache' ), __( 'No', 'hamecache' ) ] as $index => $str ) {
+					<?php
+					foreach ( [ __( 'Yes', 'hamecache' ), __( 'No', 'hamecache' ) ] as $index => $str ) {
 						$value = ! $index;
 						printf(
 							'<label class="hamecache-label"><input type="radio" name="%s" value="%s" %s /> %s</label>',
@@ -217,21 +259,31 @@ class Option extends Singleton {
 							checked( $value, $this->{$key}, false ),
 							esc_html( $str )
 						);
-					} ?>
+					}
+					?>
 				</p>
-				<?php
-			}, 'hamecache', 'hamecache_rules' );
+					<?php
+				},
+				'hamecache',
+				'hamecache_rules'
+			);
 			register_setting( 'hamecache', $option_key );
 		}
 		// Extra pages.
-		add_settings_field( 'hamecache_extra_pages', __( 'Extra Pages', 'hamecache' ), function() {
-			?>
-			<textarea class="widefat" rows="5" id="hamecache_extra_pages" name="hamecache_extra_pages"><?php echo esc_textarea( $this->extra_pages ) ?></textarea>
+		add_settings_field(
+			'hamecache_extra_pages',
+			__( 'Extra Pages', 'hamecache' ),
+			function () {
+				?>
+			<textarea class="widefat" rows="5" id="hamecache_extra_pages" name="hamecache_extra_pages"><?php echo esc_textarea( $this->extra_pages ); ?></textarea>
 			<p class="description">
-				<?php esc_html_e( 'Add extra pages to purge on post edit. 1 URL per 1 line.', 'hamecache' ) ?>
+				<?php esc_html_e( 'Add extra pages to purge on post edit. 1 URL per 1 line.', 'hamecache' ); ?>
 			</p>
-			<?php
-		}, 'hamecache', 'hamecache_rules' );
+				<?php
+			},
+			'hamecache',
+			'hamecache_rules'
+		);
 		register_setting( 'hamecache', 'hamecache_extra_pages' );
 	}
 
@@ -270,7 +322,7 @@ class Option extends Singleton {
 	 */
 	public function is_supported( $post = null ) {
 		$post = get_post( $post );
-		return $post && ! empty( $post->post_type ) && in_array( $post->post_type, $this->post_types );
+		return $post && ! empty( $post->post_type ) && in_array( $post->post_type, $this->post_types, true );
 	}
 
 	/**
