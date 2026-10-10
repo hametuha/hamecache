@@ -1,0 +1,92 @@
+name: Claude Code PR Review
+
+on:
+  workflow_run:
+    workflows: ["Test Plugin"]
+    types: [completed]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  # CI 全パス後の自動レビュー（同一リポジトリのPRのみ）
+  setup:
+    if: |
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.event.workflow_run.actor.login != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.pr.outputs.number }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Get PR number
+        id: pr
+        run: |
+          PR_NUMBER=$(gh pr list --head "${{ github.event.workflow_run.head_branch }}" --json number --jq '.[0].number')
+          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  auto-review:
+    needs: setup
+    if: needs.setup.outputs.pr_number != ''
+    uses: tarosky/workflows/.github/workflows/claude-review.yml@main
+    with:
+      plugin_name: hamecache
+      ci_checks: "PHPCS, PHPStan, PHP Lint, PHPUnit (PHP 7.4/8.3 x WP latest/6.6), asset build (gulp)"
+      pr_number: ${{ fromJSON(needs.setup.outputs.pr_number) }}
+      head_sha: ${{ github.event.workflow_run.head_sha }}
+      custom_focus: |
+        - Cloudflare API 呼び出し（認証情報の扱い、wp_remote_* のエラー処理、タイムアウト）と、パージ対象URL生成（hamecache_urls_to_be_purged フィルター含む）の正しさ
+        - REST API エンドポイント・管理バーのパージ操作における権限チェック（capability / nonce）と、WP-CLI コマンドの挙動
+        - PHP 7.4 互換性の維持（composer の platform が 7.4 固定）
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+  # "@claude auto-review" で手動レビュー（メンバーのみ、PRコメントのみ）
+  manual-setup:
+    if: |
+      github.event_name == 'issue_comment' &&
+      contains(github.event.comment.body, '@claude auto-review') &&
+      github.event.issue.pull_request &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.pr.outputs.number }}
+      head_sha: ${{ steps.pr.outputs.head_sha }}
+    steps:
+      - name: Get PR info
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER=${{ github.event.issue.number }}
+          HEAD_SHA=$(gh pr view "$PR_NUMBER" --repo "${{ github.repository }}" --json headRefOid --jq '.headRefOid')
+          echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
+
+  manual-review:
+    needs: manual-setup
+    if: needs.manual-setup.outputs.pr_number != ''
+    uses: tarosky/workflows/.github/workflows/claude-review.yml@main
+    with:
+      plugin_name: hamecache
+      ci_checks: "PHPCS, PHPStan, PHP Lint, PHPUnit (PHP 7.4/8.3 x WP latest/6.6), asset build (gulp)"
+      pr_number: ${{ fromJSON(needs.manual-setup.outputs.pr_number) }}
+      head_sha: ${{ needs.manual-setup.outputs.head_sha }}
+      is_manual: true
+      custom_focus: |
+        - Cloudflare API 呼び出し（認証情報の扱い、wp_remote_* のエラー処理、タイムアウト）と、パージ対象URL生成（hamecache_urls_to_be_purged フィルター含む）の正しさ
+        - REST API エンドポイント・管理バーのパージ操作における権限チェック（capability / nonce）と、WP-CLI コマンドの挙動
+        - PHP 7.4 互換性の維持（composer の platform が 7.4 固定）
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

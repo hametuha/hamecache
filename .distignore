@@ -36,3 +36,7 @@ node_modules
 *.sql
 *.tar.gz
 *.zip
+.github
+.node-version
+.eslintrc
+gulpfile.js
