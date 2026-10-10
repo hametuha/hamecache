@@ -18,7 +18,7 @@
     "eslint": "^5.4.0",
     "eslint-config-wordpress": "^2.0.0",
     "gulp": "^4.0.0",
-    "gulp-autoprefixer": "^6.0.0",
+    "gulp-autoprefixer": "^10.0.0",
     "gulp-eslint": "^5.0.0",
     "gulp-load-plugins": "^1.2",
     "gulp-notify": "^3.2.0",
