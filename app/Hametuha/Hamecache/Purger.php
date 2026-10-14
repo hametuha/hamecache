@@ -78,9 +78,8 @@ class Purger extends Singleton {
 	 * @return \WP_Error|bool
 	 */
 	public function purge( $post ) {
-		$urls = $this->get_purge_url( $post );
-		$code = 500;
-		$err  = '';
+		$urls   = $this->get_purge_url( $post );
+		$target = "POST:{$post->ID}";
 		try {
 			if ( ! $urls ) {
 				throw new \Exception( __( 'No URL to be purged.', 'hamecache' ) );
@@ -97,20 +96,49 @@ class Purger extends Singleton {
 				}
 				throw new \Exception( implode( "\n", $errors ) );
 			}
-			$message = [ 'Purged!' ];
-			foreach ( $urls as $index => $url ) {
-				$num       = $index + 1;
-				$message[] = "#{$num}\t{$url}";
-			}
-			$code = 200;
-			throw new \Exception( implode( "\n", $message ) );
 		} catch ( \Exception $e ) {
-			if ( ! $this->option->do_not_log ) {
-				error_log( "HAMECACHE\t{$code}\tPOST:{$post->ID}\t" . trim( $e->getMessage() ) );
-			}
-			$err = $e->getMessage();
+			$this->log( 500, $target, $e->getMessage() );
+			return new \WP_Error( 'failed_purge', $e->getMessage() );
 		}
-		return 200 === $code ? true : new \WP_Error( 'failed_purge', $err );
+		$message = [ 'Purged!' ];
+		foreach ( $urls as $index => $url ) {
+			$num       = $index + 1;
+			$message[] = "#{$num}\t{$url}";
+		}
+		$this->log( 200, $target, implode( "\n", $message ) );
+		return true;
+	}
+
+	/**
+	 * Write purge result to error log.
+	 *
+	 * Failures are always logged unless "Do not log" option is on.
+	 * Successes are logged only if `hamecache_log_success` filter returns true,
+	 * because they bloat the error log which is often shared on rental servers.
+	 *
+	 * @param int    $code    Status code. 200 means success.
+	 * @param string $target  Purge target e.g. "POST:123", "Everything".
+	 * @param string $message Log message.
+	 * @return void
+	 */
+	protected function log( $code, $target, $message ) {
+		if ( $this->option->do_not_log ) {
+			return;
+		}
+		if ( 200 === $code ) {
+			/**
+			 * hamecache_log_success
+			 *
+			 * Whether to log successful purges. Default false.
+			 *
+			 * @param bool   $log_success If true, successful purges are logged.
+			 * @param string $target      Purge target e.g. "POST:123", "Everything".
+			 */
+			if ( ! apply_filters( 'hamecache_log_success', false, $target ) ) {
+				return;
+			}
+		}
+		error_log( "HAMECACHE\t{$code}\t{$target}\t" . trim( $message ) );
 	}
 
 	/**
@@ -321,9 +349,7 @@ class Purger extends Singleton {
 			);
 			$message .= "\n" . $log;
 		}
-		if ( ! $this->option->do_not_log ) {
-			error_log( "HAMECACHE\t{$code}\tEverything\t{$message}" );
-		}
+		$this->log( $code, 'Everything', $message );
 		return $result;
 	}
 
