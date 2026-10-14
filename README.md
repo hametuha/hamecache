@@ -43,6 +43,10 @@ add_filter( 'hamecache_urls_to_be_purged', function( $urls, $post ) {
 }, 10, 2 );
 ```
 
+### Where do I report security bugs found in this plugin?
+
+Please do not post it publicly. Report security bugs through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/report/wordpress/plugin/hamecache). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
 ## Screenshots
 
 1. You can purge caches for post from admin bar.
