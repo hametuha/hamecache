@@ -6,7 +6,6 @@
  * Author:          Hametuha
  * Author URI:      https://hametuha.co.jp
  * Text Domain:     hamecache
- * Domain Path:     /languages
  * Version:         1.0.0
  * Requires PHP:    7.4
  *
@@ -19,7 +18,6 @@ defined( 'ABSPATH' ) || die();
  * Initialize hamecache.
  */
 function hamecache_init() {
-	load_plugin_textdomain( 'hamecache', false, basename( __DIR__ ) );
 	require_once __DIR__ . '/vendor/autoload.php';
 	$info = get_file_data(
 		__FILE__,
