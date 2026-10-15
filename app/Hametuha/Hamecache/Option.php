@@ -122,7 +122,11 @@ class Option extends Singleton {
 							<?php foreach ( $rule->actions as $action ) : ?>
 							<span class="hamecache-rule-action">
 								<span><?php echo esc_html( $action->id ); ?>: </span>
-								<code><?php echo esc_html( $action->value ); ?></code>
+								<?php
+								// Some actions (e.g. always_use_https) have no value, and forwarding_url has an object.
+								$action_value = isset( $action->value ) ? $action->value : '';
+								?>
+								<code><?php echo esc_html( is_scalar( $action_value ) ? $action_value : wp_json_encode( $action_value ) ); ?></code>
 							</span>
 							<?php endforeach; ?>
 						</div>
