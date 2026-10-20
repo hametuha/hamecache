@@ -1,42 +1,61 @@
-# A set of files you probably don't want in your WordPress.org distribution
-.distignore
-.editorconfig
+# Files excluded from the WordPress.org / GitHub release package.
+# rsync --exclude-from format. Patterns starting with "/" are anchored to the repository root.
+#
+# Runtime files that MUST stay in the package:
+#   hamecache.php, app/ (PSR-0 autoload), functions/, assets/ (built by gulp),
+#   vendor/ + composer.json (vendor/autoload.php is required), LICENSE, readme.txt (generated on deploy)
+
+# VCS / CI
 .git
+.github
 .gitignore
 .gitlab-ci.yml
 .travis.yml
+.circleci
+bitbucket-pipelines.yml
+.distignore
+
+# Editor / OS
+.editorconfig
 .DS_Store
 Thumbs.db
-behat.yml
-bitbucket-pipelines.yml
-bin
-.circleci/config.yml
-composer.json
-composer.lock
+
+# Node / build tools (assets/ is generated from src/ by gulp)
+.node-version
+.eslintrc
+gulpfile.js
 Gruntfile.js
 package.json
 package-lock.json
-phpunit.xml
-phpunit.xml.dist
-multisite.xml
-multisite.xml.dist
+yarn.lock
+node_modules
+/src
+
+# Composer (composer.json is kept because vendor/autoload.php is shipped)
+composer.lock
+
+# PHP lint / static analysis / tests
 .phpcs.xml
-phpcs.xml
 .phpcs.xml.dist
+phpcs.xml
 phpcs.xml.dist
 phpcs.ruleset.xml
 phpstan.neon
 phpstan-baseline.neon
 phpstan-bootstrap.php
-README.md
+phpunit.xml
+phpunit.xml.dist
+multisite.xml
+multisite.xml.dist
+behat.yml
 wp-cli.local.yml
-yarn.lock
-tests
-node_modules
+/tests
+/bin
+
+# Documents (readme.txt is generated from README.md on deploy)
+README.md
+
+# Archives / dumps
 *.sql
 *.tar.gz
 *.zip
-.github
-.node-version
-.eslintrc
-gulpfile.js
