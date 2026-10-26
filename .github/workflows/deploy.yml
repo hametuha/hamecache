@@ -26,18 +26,16 @@ jobs:
           php-version: 7.4
           tools: composer
 
-      # The legacy gulp 4 + node-sass 4 toolchain does not build on Node >= 16.
       - name: Setup Node.JS
         uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version-file: '.node-version'
 
       - name: Install dependencies and build Assets
         run: |
           composer install --no-dev --prefer-dist
           npm ci --ignore-scripts
-          npm rebuild node-sass
-          npm start
+          npm run build
 
       - name: Generate readme.txt
         uses: tarosky/workflows/actions/wp-readme@main

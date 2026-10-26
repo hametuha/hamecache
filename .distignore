@@ -2,7 +2,7 @@
 # rsync --exclude-from format. Patterns starting with "/" are anchored to the repository root.
 #
 # Runtime files that MUST stay in the package:
-#   hamecache.php, app/ (PSR-0 autoload), functions/, assets/ (built by gulp),
+#   hamecache.php, app/ (PSR-0 autoload), functions/, assets/ (built by npm run build),
 #   vendor/ + composer.json (vendor/autoload.php is required), LICENSE, readme.txt (generated on deploy)
 
 # VCS / CI
@@ -20,10 +20,9 @@ bitbucket-pipelines.yml
 .DS_Store
 Thumbs.db
 
-# Node / build tools (assets/ is generated from src/ by gulp)
+# Node / build tools (assets/ is generated from src/ by wp-scripts and sass)
 .node-version
-.eslintrc
-gulpfile.js
+eslint.config.mjs
 Gruntfile.js
 package.json
 package-lock.json
