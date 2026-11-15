@@ -12,11 +12,11 @@
     "format:js": "wp-scripts lint-js --fix ./src/js"
   },
   "devDependencies": {
-    "@wordpress/scripts": "^37.0.0",
-    "autoprefixer": "^10.6.1",
-    "globals": "^17.13.0",
+    "@wordpress/scripts": "^37.1.0",
+    "autoprefixer": "^10.6.2",
+    "globals": "^17.14.0",
     "postcss-cli": "^12.0.0",
-    "sass": "^1.106.1"
+    "sass": "^1.108.1"
   },
   "browserslist": [
     "extends @wordpress/browserslist-config"
