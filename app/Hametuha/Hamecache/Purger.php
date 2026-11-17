@@ -34,6 +34,7 @@ class Purger extends Singleton {
 	 */
 	public function register_assets() {
 		wp_register_script( 'hamecache-controller', $this->option->url . 'assets/js/purge.js', [ 'jquery-effects-highlight', 'wp-api-fetch', 'wp-i18n' ], $this->option->version, true );
+		wp_set_script_translations( 'hamecache-controller', 'hamecache' );
 	}
 
 	/**
