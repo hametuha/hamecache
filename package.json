@@ -16,7 +16,7 @@
     "autoprefixer": "^10.6.2",
     "globals": "^17.14.0",
     "postcss-cli": "^12.0.0",
-    "sass": "^1.108.1"
+    "sass": "^1.108.2"
   },
   "browserslist": [
     "extends @wordpress/browserslist-config"
